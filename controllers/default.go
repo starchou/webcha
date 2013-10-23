@@ -139,11 +139,10 @@ func dealwith(req *Request) (resp *Response, err error) {
 		case "天气":
 			resp.Content = "该功能正在开发中"
 		}
-
-		resp.MsgType = News
-		resp.ArticleCount = 1
-		resp.Articles = resp.Articles
-		resp.FuncFlag = 1
+		//resp.MsgType = News
+		//resp.ArticleCount = 1
+		//resp.Articles = resp.Articles
+		//resp.FuncFlag = 1
 	} else {
 		resp.Content = "暂时还不支持其他的类型"
 	}
