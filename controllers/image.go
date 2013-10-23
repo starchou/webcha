@@ -7,3 +7,7 @@ import (
 type ImageController struct {
 	beego.Controller
 }
+
+func (c *ImageController) Get() {
+	c.Ctx.WriteString("hello starchou")
+}

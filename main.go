@@ -7,7 +7,7 @@ import (
 
 func main() {
 	beego.Info("come in")
-	beego.Router("/", &controllers.MainController{})
+	beego.Router("/", &controllers.ImageController{})
 	beego.Router("/webchat", &controllers.MainController{})
 	beego.HttpPort = 8099
 	beego.Run()
