@@ -126,11 +126,10 @@ func dealwith(req *Request) (resp *Response, err error) {
 		//var a item
 		beego.Info(req.Content)
 		beego.Info(strs[0])
-		beego.Info(strs[1])
 		switch strs[0] {
 		case "手机号码":
 			data, err := utils.GetDataString(strs[1], "")
-			if err != nil {
+			if err == nil {
 				beego.Info(data)
 				resp.Content = data
 			} else {

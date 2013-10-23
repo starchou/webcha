@@ -75,13 +75,12 @@ func GetDataString(mobileCode string, userID string) (string, error) {
 		println("Error decoding body:", err.Error())
 		return "", err
 	}
-	println("Decoded body!")
 
 	if bodyElement == nil {
 		println("Result is nil")
 		return "", err
 	}
-	//fmt.Printf("string: %#v\n", bodyElement.Value)
+	fmt.Printf("string: %#v\n", bodyElement.Value)
 	return bodyElement.Value, nil
 }
 
@@ -99,7 +98,6 @@ func DecodeResponseBody(body io.Reader) (*GetMobileCodeInfoResponse, error) {
 		case xml.StartElement:
 			if nextElementIsBody {
 				responseBody := GetMobileCodeInfoResponse{}
-				println(decoder)
 				err = decoder.DecodeElement(&responseBody, &startElement)
 				if err != nil {
 					return nil, err
