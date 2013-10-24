@@ -117,11 +117,12 @@ func dealwith(req *Request) (resp *Response, err error) {
 	beego.Info(req.MsgType)
 	beego.Info(req.Content)
 	if req.MsgType == Text {
-		if strings.Trim(strings.ToLower(req.Content), " ") == "help" || req.Content == "Hello2BizUser" || req.Content == "subscribe" {
+		if strings.Trim(strings.ToLower(req.Content), " ") == "help" || req.Content == "帮助" || req.Content == "subscribe" {
 			resp.Content = "功能列表如下：查询手机归属地请输入：‘手机号码:13838385438’"
 			return resp, nil
 		}
-		strs := strings.Split(req.Content, ":")
+		contentString := strings.Replace(req.Content, "：", ":", 1)
+		strs := strings.Split(contentString, ":")
 		//var resurl string
 		//var a item
 		beego.Info(req.Content)
