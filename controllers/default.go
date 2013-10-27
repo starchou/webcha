@@ -35,7 +35,7 @@ type msgBase struct {
 type Request struct {
 	XMLName                xml.Name `xml:"xml"`
 	msgBase                         // base struct
-	Location_X, Location_Y float32
+	Location_X, Location_Y float64
 	Scale                  int
 	Label                  string
 	PicUrl                 string
@@ -157,6 +157,15 @@ func dealwith(req *Request) (resp *Response, err error) {
 		//resp.ArticleCount = 1
 		//resp.Articles = resp.Articles
 		//resp.FuncFlag = 1
+	} else if req.MsgType == Location {
+		val := strconv.FormatFloat(req.Location_X, 'f', -1, 64) + "," + strconv.FormatFloat(req.Location_Y, 'f', -1, 64)
+		data, err := utils.GetMap(val)
+		if err == nil {
+			beego.Info(data)
+			resp.Content = data.Result.Formatted_address
+		} else {
+			resp.Content = "查询出错!"
+		}
 	} else {
 		resp.Content = "暂时还不支持其他的类型"
 	}
