@@ -111,68 +111,84 @@ func (this *MainController) Post() {
 }
 
 func dealwith(req *Request) (resp *Response, err error) {
-	resp = NewResponse()
-	resp.ToUserName = req.FromUserName
-	resp.FromUserName = req.ToUserName
-	resp.MsgType = Text
-	beego.Info(req.MsgType)
-	beego.Info(req.Content)
-	if req.MsgType == Text {
-		temstring := strings.Trim(strings.ToLower(req.Content), " ")
-		if temstring == "help" || req.Content == "帮助" {
-			resp.Content = "功能列表如下：查询手机归属地请输入：‘手机号码:13838385438’"
-			return resp, nil
-		}
-		_, err := strconv.Atoi(temstring)
-		if len(temstring) == 11 && err == nil {
-			data, err := utils.GetDataString(temstring, "")
-			if err == nil {
-				beego.Info(data)
-				resp.Content = data
-			} else {
-				resp.Content = "查询出错!"
-			}
-			return resp, nil
-		}
-		contentString := strings.Replace(temstring, "：", ":", 1)
-		strs := strings.Split(contentString, ":")
-		//var resurl string
-		//var a item
-		beego.Info(req.Content)
-		beego.Info(strs[0])
-		switch strs[0] {
-		case "手机号码":
-			data, err := utils.GetDataString(strs[1], "")
-			if err == nil {
-				beego.Info(data)
-				resp.Content = data
-			} else {
-				resp.Content = "查询出错!"
-			}
+	switch req.MsgType {
+	case Text:
+		return dealwithText(req)
+	case Location:
+		return dealwithLocation(req)
+	default:
+		return dealwithDefault(req)
+	}
+}
 
-		case "天气":
-			resp.Content = "该功能正在开发中"
-		}
-		//resp.MsgType = News
-		//resp.ArticleCount = 1
-		//resp.Articles = resp.Articles
-		//resp.FuncFlag = 1
-	} else if req.MsgType == Location {
-		val := strconv.FormatFloat(req.Location_X, 'f', -1, 64) + "," + strconv.FormatFloat(req.Location_Y, 'f', -1, 64)
-		data, err := utils.GetMap(val)
+func dealwithText(req *Request) (resp *Response, err error) {
+	resp = buildWeixinResponse(Text, req)
+	temstring := strings.Trim(strings.ToLower(req.Content), " ")
+	if temstring == "help" || req.Content == "帮助" {
+		resp.Content = `功能列表如下：
+							1.查询手机归属地请输入：‘手机号码:13838385438’或直接输入11位手机号码
+							2.查询附近的情况请发送：[我的位置]
+							`
+		return resp, nil
+	}
+	a, err := strconv.Atoi(temstring)
+	beego.Info(a)
+	if len(temstring) == 11 && err == nil {
+		data, err := utils.GetDataString(temstring, "")
 		if err == nil {
 			beego.Info(data)
-			resp.Content = data.Result.Formatted_address
+			resp.Content = data
 		} else {
 			resp.Content = "查询出错!"
 		}
 		return resp, nil
-	} else {
-		resp.Content = "暂时还不支持其他的类型"
+	}
+	contentString := strings.Replace(temstring, "：", ":", 1)
+	strs := strings.Split(contentString, ":")
+	beego.Info(req.Content)
+	beego.Info(strs[0])
+	switch strs[0] {
+	case "手机号码":
+		data, err := utils.GetDataString(strs[1], "")
+		if err == nil {
+			beego.Info(data)
+			resp.Content = data
+		} else {
+			resp.Content = "查询出错!"
+		}
+
+	case "天气":
+		resp.Content = "该功能正在开发中"
 	}
 	return resp, nil
 }
-
+func dealwithLocation(req *Request) (resp *Response, err error) {
+	resp = buildWeixinResponse(Text, req)
+	val := strconv.FormatFloat(req.Location_X, 'f', -1, 64) + "," + strconv.FormatFloat(req.Location_Y, 'f', -1, 64)
+	data, err := utils.GetMap(val)
+	if err == nil {
+		temp := "您的位置周边有：\r\n"
+		for _, v := range data.Result.Pois {
+			temp += v.Name + "(" + v.PoiType + "),地址：" + v.Addr + "距离你的位置" + v.Distance + "米,电话：" + v.Tel + "\r\n"
+		}
+		resp.Content = temp
+	} else {
+		resp.Content = "查询出错,请email到star@starchou.org,或微信starchou!"
+	}
+	return resp, nil
+}
+func dealwithDefault(req *Request) (resp *Response, err error) {
+	resp = buildWeixinResponse(Text, req)
+	resp.Content = "暂时还不支持其他的类型"
+	return resp, nil
+}
+func buildWeixinResponse(msgType string, req *Request) (resp *Response) {
+	resp = NewResponse()
+	resp.ToUserName = req.FromUserName
+	resp.FromUserName = req.ToUserName
+	resp.MsgType = msgType
+	return resp
+}
 func Signature(timestamp, nonce string) string {
 	strs := sort.StringSlice{TOKEN, timestamp, nonce}
 	sort.Strings(strs)

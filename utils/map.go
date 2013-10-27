@@ -22,6 +22,7 @@ type Results struct {
 	Formatted_address string
 	Business          string
 	AddressComponent  Address
+	Pois              []Poises
 	CityCode          int
 }
 type Locations struct {
@@ -35,13 +36,28 @@ type Address struct {
 	Street        string
 	Street_number string
 }
+type Poises struct {
+	Addr     string
+	Cp       string
+	Distance string
+	Name     string
+	PoiType  string
+	Point    Points
+	Tel      string
+	Uid      string
+	Zip      string
+}
+type Points struct {
+	X float64
+	Y float64
+}
 
 func GetMap(location string) (*BaiduMap, error) {
 	urls := make(map[string]string)
 	urls["ak"] = baiduKey
 	urls["output"] = "json"
 	urls["location"] = location
-	urls["pois"] = "0"
+	urls["pois"] = "1"
 	resp, err := DoGet(baseurl, urls)
 	if err != nil {
 		println(err.Error())
