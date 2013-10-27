@@ -8,6 +8,7 @@ import (
 	"github.com/starchou/webcha/utils"
 	"io/ioutil"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -117,11 +118,23 @@ func dealwith(req *Request) (resp *Response, err error) {
 	beego.Info(req.MsgType)
 	beego.Info(req.Content)
 	if req.MsgType == Text {
-		if strings.Trim(strings.ToLower(req.Content), " ") == "help" || req.Content == "帮助" || req.Content == "subscribe" {
+		temstring := strings.Trim(strings.ToLower(req.Content), " ")
+		if temstring == "help" || req.Content == "帮助" {
 			resp.Content = "功能列表如下：查询手机归属地请输入：‘手机号码:13838385438’"
 			return resp, nil
 		}
-		contentString := strings.Replace(req.Content, "：", ":", 1)
+		_, err := strconv.Atoi(temstring)
+		if len(temstring) == 11 && err == nil {
+			data, err := utils.GetDataString(temstring, "")
+			if err == nil {
+				beego.Info(data)
+				resp.Content = data
+			} else {
+				resp.Content = "查询出错!"
+			}
+			return resp, nil
+		}
+		contentString := strings.Replace(temstring, "：", ":", 1)
 		strs := strings.Split(contentString, ":")
 		//var resurl string
 		//var a item
