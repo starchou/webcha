@@ -166,6 +166,7 @@ func dealwith(req *Request) (resp *Response, err error) {
 		} else {
 			resp.Content = "查询出错!"
 		}
+		return resp, nil
 	} else {
 		resp.Content = "暂时还不支持其他的类型"
 	}
